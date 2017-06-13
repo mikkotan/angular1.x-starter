@@ -5,5 +5,7 @@ import config from './app.config';
 import homeModule from './home';
 import todosModule from './todos';
 
-export default angular.module('app', [uirouter, homeModule, todosModule])
+import factories from './factories';
+
+export default angular.module('app', [uirouter, homeModule, todosModule, factories])
     .config(config)

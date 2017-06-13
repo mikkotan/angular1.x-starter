@@ -1,5 +1,9 @@
+import _ from 'lodash';
+
 export default class TodosController {
-    constructor() {
+    constructor(TodoFactory) {
+        'ngInject';
+
         this.task = '';
         this.todos = [
             {
@@ -31,13 +35,13 @@ export default class TodosController {
         }
     }
 
-    onDeleteClick(todo) {
-        let index = this.todos.indexOf(todo);
-        this.todos.splice(index, 1);
+    onDeleteClick(todoToDelete) {
+        _.remove(this.todos, todo => todo.task === todoToDelete.task)
     }
 
     onEditClick(todo) {
         todo.isEditing = true;
+        todo.updatedTask = todo.task;
     }
 
     onEditCancelClick(todo) {
