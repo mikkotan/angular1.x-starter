@@ -1,26 +1,22 @@
 import _ from 'lodash';
 
 export default class TodosController {
-    constructor(TodoFactory) {
+    constructor(TodoFactory, $scope) {
         'ngInject';
-
+        this._TodoFactory = TodoFactory;
         this.task = '';
-        this.todos = [
-            {
-                task: 'Learn AngularJS v1.0',
-                isCompleted: false,
-                isEditing: false
-            },
-            {
-                task: 'Kotlin for Android Development',
-                isCompleted: false,
-                isEditing: false
-            }
-        ]
+        this.todos = [];
+        this.populateTasks();
     }
 
     onCompletedClick(todo) {
         todo.isCompleted = !todo.isCompleted;
+        // console.log(`Todo is completed from controller: ${todo.isCompleted}`)
+        this._TodoFactory.update(todo)
+            .then(res => {
+                console.log(`Res: ${JSON.stringify(res)}`)
+            })
+            .catch(err => console.log(`Err: ${err}`))
     }
 
     addTask() {
@@ -30,13 +26,22 @@ export default class TodosController {
                 isCompleted: false,
                 isEditing: false
             }
-            this.todos.push(task);
-            this.task = '';
+            this._TodoFactory.store(task)
+                .then(res => {
+                    this.populateTasks();
+                    this.task = '';
+                })
+                .catch(err => {
+                    alert(`Err: ${JSON.stringify(err)}`);
+                })
         }
     }
 
-    onDeleteClick(todoToDelete) {
-        _.remove(this.todos, todo => todo.task === todoToDelete.task)
+    onDeleteClick(todo) {
+        console.log(`Todo to be deleted: ${todo.task}`);
+        this._TodoFactory.destroy(todo)
+            .then(res => this.populateTasks())
+            .catch(err => console.log(`Err: ${err}`))
     }
 
     onEditClick(todo) {
@@ -51,7 +56,22 @@ export default class TodosController {
     updateTask(todo) {
         if (todo.updatedTask) {
             todo.task = todo.updatedTask;
-            todo.isEditing = false;
+            this._TodoFactory.update(todo)
+                .then(res => {
+                    todo.isEditing = false;
+                    this.populateTasks();
+                })
+                .catch(err => {
+                    console.log(`Err: ${err}`);
+                })
         }
+    }
+
+    populateTasks() {
+        this._TodoFactory.getAll()
+            .then(response => {
+                this.todos = response.todos;
+            })
+            .catch(err => alert(err))
     }
 }

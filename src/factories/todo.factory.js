@@ -4,18 +4,17 @@ export default function todoFactory($http) {
 
     const url = 'api/todos'
     function store(data) {
-        let request = {
+        return $http({
             url,
             data,
-            method: 'POST'
-        }
-
-        return $http(request).then(res => data);
+            method: 'POST',
+            headers: { 'Content-Type' : 'application/json' }
+        });
     }
 
     function show(id) {
         return $http({
-            url: url + '/id',
+            url: url + `/${id}`,
             method: 'GET'
         }).then(res => res.data);
     }
@@ -27,17 +26,31 @@ export default function todoFactory($http) {
         }).then(res => res.data);
     }
 
-    function destroy(id) {
+    function destroy(todo) {
+        console.log(`Todo to be deleted from factory: ${todo.task}`);
         return $http({
-            url: url + '/id',
+            url: url + `/${todo._id}`,
             method: 'DELETE'
-        }).then(res => res.data);
+        });
+    }
+
+    function update(todo) {
+        console.log(`Todo is Completed is: ${todo.isCompleted}`);
+        return $http({
+            url: url + `/${todo._id}`,
+            method: 'PUT',
+            data: {
+                task: todo.task,
+                isCompleted: todo.isCompleted
+            }
+        });
     }
 
     return {
         store,
         show,
         getAll,
-        destroy
+        destroy,
+        update
     }
 }
